@@ -16,6 +16,12 @@ enum class ECharacterState :UINT8
 	ECS_EquippedTwoHandedWeapon UMETA(DisplayName = "Equipped Two-Handed Weapon")
 
 };
+UENUM(BlueprintType)
+enum class EActionState :UINT8
+{
+	EAS_Unoccupied UMETA(DisplayName = "Unoccupied"),
+	EAS_Attacking UMETA(DisplayName = "Attacking"),
+};
 UCLASS()
 class FIRSTSLASH_API ASlashCharacter : public ACharacter
 {
@@ -28,14 +34,22 @@ public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 protected:
 	virtual void BeginPlay() override;
+	//Callbacks for input
 	void MoveForward(float Value);
 	void Turn(float Value);
 	void LookUp(float Value);
 	void MoveRight(float Value);
 	void EKeyPressed();
 	void Attack();
+	//play montage functions
+	void PlayAttackMontage();
+	UFUNCTION(BlueprintCallable)
+	void AttackEnd();
+	bool CanAttack();
 	UPROPERTY(BlueprintReadWrite)
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+	UPROPERTY(BlueprintReadWrite)
+	EActionState ActionState = EActionState::EAS_Unoccupied;
 	//Animation Montages
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* AttackMontage;

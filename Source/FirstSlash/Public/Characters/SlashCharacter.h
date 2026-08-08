@@ -7,7 +7,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class AItem;
-
+class UAnimMontage;
 UENUM(BlueprintType)
 enum class ECharacterState :UINT8
 {
@@ -33,8 +33,12 @@ protected:
 	void LookUp(float Value);
 	void MoveRight(float Value);
 	void EKeyPressed();
+	void Attack();
 	UPROPERTY(BlueprintReadWrite)
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+	//Animation Montages
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* AttackMontage;
 private:
 
 

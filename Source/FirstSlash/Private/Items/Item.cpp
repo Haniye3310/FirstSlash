@@ -81,9 +81,12 @@ void AItem::Tick(float DeltaTime)
 	//AddActorWorldOffset(FVector(20 * DeltaTime, 0.f, 0.f));
 
 	RunningTime += DeltaTime;
-	/*float deltaZ = TransformedSin();
-	AddActorWorldOffset(FVector(0.f,0.f,deltaZ));
-	UWorld* world = GetWorld();
+	if (ItemState == EItemState::EIS_Hovering) 
+	{
+		AddActorWorldOffset(FVector(0.f, 0.f, TransformedSin()));
+
+	}
+	/*UWorld* world = GetWorld();
 	if (world) {
 		DrawDebugSphere(world,GetActorLocation(),20.f,20, FColor::Red,false,-1.f,0,10);
 	}*/

@@ -6,6 +6,12 @@
 #include "GameFramework/Actor.h"
 #include "Item.generated.h"
 class USphereComponent;
+
+enum class EItemState : uint8
+{
+	EIS_Hovering UMETA(DisplayName = "Hovering"),
+	EIS_Equipped UMETA(DisplayName = "Equipped"),
+};
 UCLASS()
 class FIRSTSLASH_API AItem : public AActor
 {
@@ -27,7 +33,7 @@ protected:
 	float RunningTime;
 	UFUNCTION(BlueprintPure)
 	float TransformedSin();
-
+	EItemState ItemState = EItemState::EIS_Hovering;
 	template<typename T>
 	T Avg(T first, T second);
 

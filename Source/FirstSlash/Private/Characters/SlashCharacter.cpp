@@ -53,6 +53,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void ASlashCharacter::MoveForward(float Value) 
 {
+	if (ActionState == EActionState::EAS_Attacking)return;
 	if ((Controller != nullptr) && (Value != 0.f)) 
 	{
 		const FRotator ControlRotation = GetControlRotation();
@@ -71,6 +72,7 @@ void ASlashCharacter::LookUp(float Value)
 }
 void ASlashCharacter::MoveRight(float Value)
 {
+	if (ActionState == EActionState::EAS_Attacking)return;
 	if ((Controller != nullptr) && (Value != 0.f))
 	{
 		const FRotator ControlRotation = GetControlRotation();
@@ -92,24 +94,44 @@ void ASlashCharacter::EKeyPressed()
 }
 void ASlashCharacter::Attack()
 {
+	if(CanAttack())
+	{
+		PlayAttackMontage();
+		ActionState = EActionState::EAS_Attacking;
+	}
+}
+bool ASlashCharacter::CanAttack()
+{
+	return ActionState == EActionState::EAS_Unoccupied &&
+		CharacterState != ECharacterState::ECS_Unequipped;
+}
+void ASlashCharacter::PlayAttackMontage()
+{
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && AttackMontage)
 	{
 		AnimInstance->Montage_Play(AttackMontage);
-		int32 Selection = FMath::RandRange(0, 1);
+		const int32 Selection = FMath::RandRange(0, 1);
 		FName SectionName = FName();
 		switch (Selection)
 		{
-			case 0:
-				SectionName = FName("Attack1");
-				break;
-			case 1:
-				SectionName = FName("Attack2");
-				break;
-			default:
-				break;
+		case 0:
+			SectionName = FName("Attack1");
+			break;
+		case 1:
+			SectionName = FName("Attack2");
+			break;
+		default:
+			break;
 		}
 		AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
 
 	}
 }
+
+void ASlashCharacter::AttackEnd()
+{
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+

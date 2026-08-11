@@ -8,6 +8,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class AItem;
 class UAnimMontage;
+class AWeapon;
 UENUM(BlueprintType)
 enum class ECharacterState :UINT8
 {
@@ -21,6 +22,7 @@ enum class EActionState :UINT8
 {
 	EAS_Unoccupied UMETA(DisplayName = "Unoccupied"),
 	EAS_Attacking UMETA(DisplayName = "Attacking"),
+	EAS_EquippingWeapon UMETA(DisplayName = "Equipping Weapon")
 };
 UCLASS()
 class FIRSTSLASH_API ASlashCharacter : public ACharacter
@@ -46,6 +48,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
 	bool CanAttack();
+	void PlayEquipMontage(FName SectionName);
+	bool CanDisarm();
+	bool CanArm();
 	UPROPERTY(BlueprintReadWrite)
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
 	UPROPERTY(BlueprintReadWrite)
@@ -53,6 +58,18 @@ protected:
 	//Animation Montages
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* AttackMontage;
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* EquipMontage;
+	UPROPERTY(BlueprintReadOnly)
+	AWeapon* EquippedWeapon;
+	UFUNCTION(BlueprintCallable)
+	void Disarm();
+	UFUNCTION(BlueprintCallable)
+	void Arm();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishEquipping();
+
 private:
 
 
@@ -64,6 +81,5 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
-
 
 };

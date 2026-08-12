@@ -70,6 +70,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void FinishEquipping();
 
+
 private:
 
 

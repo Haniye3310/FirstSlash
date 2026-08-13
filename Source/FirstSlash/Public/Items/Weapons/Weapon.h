@@ -17,6 +17,7 @@ class FIRSTSLASH_API AWeapon : public AItem
 public:
 	AWeapon();
 	void Equip(USceneComponent* InParent, FName InSocketName);
+	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
 	void AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName);
 protected:
 	virtual void BeginPlay() override;

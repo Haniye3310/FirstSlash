@@ -26,4 +26,9 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* HitReactMontage;
+	UPROPERTY(EditAnywhere)
+	USoundBase* HitSound;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* HitParticles;
 };

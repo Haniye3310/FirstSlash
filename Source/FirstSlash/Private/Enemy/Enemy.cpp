@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Animation/AnimMontage.h"
 #include "Kismet//KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 AEnemy::AEnemy()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -46,12 +47,21 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AEnemy::GetHit(const FVector& ImpactPoint)
 {
-	UWorld* world = GetWorld();
+	/*UWorld* world = GetWorld();
 	if (world) {
 		DrawDebugSphere(world, ImpactPoint, 8.f, 12.f, FColor::Orange, false, 5.f);
-	}
+	}*/
 	DirectionalHitReact(ImpactPoint);
-	
+	if (HitSound) 
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this, HitSound, ImpactPoint);
+	}
+	if (HitParticles && GetWorld())
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(), HitParticles, ImpactPoint);
+	}
 }
 
 void AEnemy::DirectionalHitReact(const FVector& ImpactPoint)
@@ -91,13 +101,13 @@ void AEnemy::DirectionalHitReact(const FVector& ImpactPoint)
 
 
 
-	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + CrossProduct * 100.f, 5.f, FColor::Red, 5.f);
+	/*UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + CrossProduct * 100.f, 5.f, FColor::Red, 5.f);
 
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Green, FString::Printf(TEXT("Theta:%f"), Theta));
 	}
 	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + Forward * 60.f, 5.f, FColor::Red, 5.f);
-	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + ToHit * 60.f, 5.f, FColor::Green, 5.f);
+	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + ToHit * 60.f, 5.f, FColor::Green, 5.f);*/
 }
 

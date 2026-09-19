@@ -20,8 +20,11 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	class UCapsuleComponent* Capsule;
 private:	
 	UPROPERTY(VisibleAnywhere)
 	UGeometryCollectionComponent* GeometryCollection;
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<class ATreasure>> TreasureClasses;
 };

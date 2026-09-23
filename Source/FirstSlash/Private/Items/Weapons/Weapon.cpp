@@ -7,6 +7,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/HitInterface.h"
+#include "NiagaraComponent.h"
 AWeapon::AWeapon()
 {
 	WeaponBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Weapon Box"));
@@ -37,6 +38,9 @@ void AWeapon::Equip(USceneComponent* InParent, FName InSocketName)
 	}
 	if (Sphere) {
 		Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	if (EmbersEffect) {
+		EmbersEffect->Deactivate();
 	}
 }
 void AWeapon::AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName)

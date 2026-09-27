@@ -16,7 +16,7 @@ class FIRSTSLASH_API AWeapon : public AItem
 	GENERATED_BODY()
 public:
 	AWeapon();
-	void Equip(USceneComponent* InParent, FName InSocketName);
+	void Equip(USceneComponent* InParent, FName InSocketName,AActor* NewOwner, APawn* NewInstigator);
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
 	void AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName);
 	TArray<AActor*> IgnoreActors;
@@ -30,10 +30,10 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void CreateFields(const FVector& FieldLocation);  
 private:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Weapon Properies")
 	USoundBase* EquipSound;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properies")
 	UBoxComponent* WeaponBox;
 
 	UPROPERTY(VisibleAnywhere)
@@ -42,4 +42,6 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* BoxTraceEnd;
 
+	UPROPERTY(EditAnywhere, Category = "Weapon Properies")
+	float Damage = 20.f;
 };

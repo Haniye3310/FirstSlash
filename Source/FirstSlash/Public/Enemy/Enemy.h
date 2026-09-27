@@ -20,15 +20,25 @@ public:
 
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	void DirectionalHitReact(const FVector& ImpactPoint);
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 protected:
 	virtual void BeginPlay() override;
 	void PlayHitReactMontage(const FName& SectionName);
 private:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* HitReactMontage;
+
 	UPROPERTY(EditAnywhere)
 	USoundBase* HitSound;
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* HitParticles;
+
+	UPROPERTY(VisibleAnywhere)
+	class UAttributeComponent* Attributes;
+
+	UPROPERTY(EditAnywhere)
+	class UHealthBarComponent* HealthBarWidget;
 };

@@ -38,6 +38,53 @@ void AEnemy::PlayHitReactMontage(const FName& SectionName)
 		AnimInstance->Montage_Play(HitReactMontage);
 		AnimInstance->Montage_JumpToSection(SectionName,HitReactMontage);
 	}
+	
+}
+
+void AEnemy::Die()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && DeathMontage)
+	{
+		AnimInstance->Montage_Play(DeathMontage);
+		const int32 Selection = FMath::RandRange(0, 5);
+		FName SectionName = FName();
+		switch (Selection)
+		{
+		case 0:
+			SectionName = FName("Death1");
+			DeathPos = EDeathPos::EDP_Death1;
+			break;
+		case 1:
+			SectionName = FName("Death2");
+			DeathPos = EDeathPos::EDP_Death2;
+
+			break;
+		case 2:
+			SectionName = FName("Death3");
+			DeathPos = EDeathPos::EDP_Death3;
+
+			break;
+		case 3:
+			SectionName = FName("Death4");
+			DeathPos = EDeathPos::EDP_Death4;
+
+			break;
+		case 4:
+			SectionName = FName("Death5");
+			DeathPos = EDeathPos::EDP_Death5;
+
+			break;
+		case 5:
+			SectionName = FName("Death6");
+			DeathPos = EDeathPos::EDP_Death6;
+
+			break;
+		default:
+			break;
+		}
+		AnimInstance->Montage_JumpToSection(SectionName, DeathMontage);
+	}
 }
 
 void AEnemy::Tick(float DeltaTime)
@@ -58,7 +105,13 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 	if (world) {
 		DrawDebugSphere(world, ImpactPoint, 8.f, 12.f, FColor::Orange, false, 5.f);
 	}*/
-	DirectionalHitReact(ImpactPoint);
+	if (Attributes&&Attributes->IsAlive()) {
+		DirectionalHitReact(ImpactPoint);
+	}
+	else
+	{
+		Die();
+	}
 	if (HitSound) 
 	{
 		UGameplayStatics::PlaySoundAtLocation(
@@ -121,11 +174,11 @@ void AEnemy::DirectionalHitReact(const FVector& ImpactPoint)
 
 float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (Attributes) 
+	if (Attributes&& HealthBarWidget)
 	{
 		Attributes->RecieveDamage(DamageAmount);
-		if (HealthBarWidget)
-			HealthBarWidget->SetHealthPercent(Attributes->GetHealthPercent());
+		HealthBarWidget->SetHealthPercent(Attributes->GetHealthPercent());
+		
 	}
 		
 	return DamageAmount;

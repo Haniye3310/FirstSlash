@@ -16,7 +16,10 @@ void UAttributeComponent::BeginPlay()
 
 	
 }
-
+bool UAttributeComponent::IsAlive()
+{
+	return Health > 0;
+}
 
 void UAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {

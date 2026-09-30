@@ -51,4 +51,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	class UHealthBarComponent* HealthBarWidget;
 
+	UPROPERTY()
+	AActor* CombatTarget;
+
+	UPROPERTY(EditAnywhere)
+	double CombatRadius = 500.f;
 };

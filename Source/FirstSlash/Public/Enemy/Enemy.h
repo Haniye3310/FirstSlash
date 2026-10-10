@@ -31,7 +31,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	EDeathPos DeathPos = EDeathPos::EDP_Alive;
-
+	bool InTargetRange(AActor* Target, double Radius);
 private:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* HitReactMontage;
@@ -63,4 +63,8 @@ private:
 	AActor* PatrolTarget;
 	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
 	TArray<AActor*> PatrolTargets;
+
+	UPROPERTY(EditAnywhere)
+	double PatrolRadius = 200.f;
+
 };

@@ -14,6 +14,8 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AIController.h"
+#include "Perception/PawnSensingComponent.h"
+#include "Characters/SlashCharacter.h"
 AEnemy::AEnemy()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -30,6 +32,9 @@ AEnemy::AEnemy()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
+	PawnSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
+	PawnSensing->SetPeripheralVisionAngle(45.f);
+	PawnSensing->SightRadius = 4000.f;
 
 }
 
@@ -43,6 +48,11 @@ void AEnemy::BeginPlay()
 	}
 	EnemyController = Cast<AAIController>(GetController());
 	MoveToTarget(PatrolTarget);
+	if (PawnSensing) {
+		PawnSensing->OnSeePawn.AddDynamic(this, &AEnemy::PawnSeen);
+
+	}
+
 }
 
 void AEnemy::PlayHitReactMontage(const FName& SectionName)
@@ -145,6 +155,23 @@ AActor* AEnemy::ChoosePatrolTarget()
 	return nullptr;
 }
 
+void AEnemy::PawnSeen(APawn* SeenPawn)
+{
+	if (EnemyState == EEnemyState::EES_Chasing)return;
+	if (SeenPawn->ActorHasTag(FName("Eve")))
+	{
+		GetWorldTimerManager().ClearTimer(PatrolTimer);
+		GetCharacterMovement()->MaxWalkSpeed = 300.f;
+		CombatTarget = SeenPawn;
+		MoveToTarget(CombatTarget);
+		if (EnemyState != EEnemyState::EES_Attacking)
+		{
+			EnemyState = EEnemyState::EES_Chasing;
+
+		}
+	}
+}
+
 void AEnemy::PatrolTimerFinished()
 {
 	MoveToTarget(PatrolTarget);
@@ -154,8 +181,16 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CheckCombatTartget();
-	CheckPatrolTarget();
+	if (EnemyState > EEnemyState::EES_Patrolling) 
+	{
+		CheckCombatTartget();
+
+	}
+	else
+	{
+		CheckPatrolTarget();
+
+	}
 }
 
 void AEnemy::CheckPatrolTarget()
@@ -177,6 +212,19 @@ void AEnemy::CheckCombatTartget()
 			HealthBarWidget->SetVisibility(false);
 
 		}
+		EnemyState = EEnemyState::EES_Patrolling;
+		GetCharacterMovement()->MaxWalkSpeed = 125.f;
+		MoveToTarget(PatrolTarget);
+	}
+	else if (!InTargetRange(CombatTarget, AttackRadius) && EnemyState != EEnemyState::EES_Chasing)
+	{
+		EnemyState = EEnemyState::EES_Chasing;
+		GetCharacterMovement()->MaxWalkSpeed = 300.f;
+		MoveToTarget(CombatTarget);
+	}
+	else if (InTargetRange(CombatTarget, AttackRadius) && EnemyState != EEnemyState::EES_Attacking)
+	{
+		EnemyState = EEnemyState::EES_Attacking;
 	}
 }
 
@@ -273,6 +321,9 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 		
 	}
 	CombatTarget = EventInstigator->GetPawn();
+	EnemyState = EEnemyState::EES_Chasing;
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	MoveToTarget(CombatTarget);
 	return DamageAmount;
 }
 

@@ -36,7 +36,12 @@ protected:
 	bool InTargetRange(AActor* Target, double Radius);
 	void MoveToTarget(AActor* Target);
 	AActor* ChoosePatrolTarget();
+	UFUNCTION()
+	void PawnSeen(APawn* SeenPawn);
+
 private:
+	UPROPERTY(VisibleAnywhere)
+	class UPawnSensingComponent* PawnSensing;
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* HitReactMontage;
 
@@ -57,7 +62,8 @@ private:
 
 	UPROPERTY()
 	AActor* CombatTarget;
-
+	UPROPERTY()
+	double AttackRadius = 150.f;
 	UPROPERTY(EditAnywhere)
 	double CombatRadius = 500.f;
 
@@ -78,5 +84,5 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
 
 	float WaitMax = 10.f;
-
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 };

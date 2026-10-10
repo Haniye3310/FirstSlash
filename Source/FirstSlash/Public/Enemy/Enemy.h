@@ -17,6 +17,8 @@ class FIRSTSLASH_API AEnemy : public ACharacter,public IHitInterface
 public:
 	AEnemy();
 	virtual void Tick(float DeltaTime) override;
+	void CheckPatrolTarget();
+	void CheckCombatTartget();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
@@ -32,6 +34,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	EDeathPos DeathPos = EDeathPos::EDP_Alive;
 	bool InTargetRange(AActor* Target, double Radius);
+	void MoveToTarget(AActor* Target);
+	AActor* ChoosePatrolTarget();
 private:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* HitReactMontage;
@@ -66,5 +70,13 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	double PatrolRadius = 200.f;
+
+	FTimerHandle PatrolTimer;
+	void PatrolTimerFinished();
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	float WaitMin = 5.f;
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+
+	float WaitMax = 10.f;
 
 };

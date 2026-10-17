@@ -2,17 +2,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "BaseCharacter.h"
 #include "CharacterTypes.h"
 #include "SlashCharacter.generated.h"
 class USpringArmComponent;
 class UCameraComponent;
 class AItem;
 class UAnimMontage;
-class AWeapon;
 
 UCLASS()
-class FIRSTSLASH_API ASlashCharacter : public ACharacter
+class FIRSTSLASH_API ASlashCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -21,38 +20,35 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
+
 protected:
 	virtual void BeginPlay() override;
-	//Callbacks for input
+	virtual void Attack() override;
+	virtual void PlayAttackMontage() override;
+	virtual bool CanAttack() override;
+	virtual void AttackEnd() override;
+
 	void MoveForward(float Value);
 	void Turn(float Value);
 	void LookUp(float Value);
 	void MoveRight(float Value);
 	void EKeyPressed();
-	void Attack();
-	//play montage functions
-	void PlayAttackMontage();
-	UFUNCTION(BlueprintCallable)
-	void AttackEnd();
-	bool CanAttack();
 	void PlayEquipMontage(const FName& SectionName);
 	bool CanDisarm();
 	bool CanArm();
+
 	UPROPERTY(BlueprintReadWrite)
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+
 	UPROPERTY(BlueprintReadWrite)
 	EActionState ActionState = EActionState::EAS_Unoccupied;
-	//Animation Montages
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* AttackMontage;
+
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* EquipMontage;
-	UPROPERTY(BlueprintReadOnly)
-	AWeapon* EquippedWeapon;
+
 	UFUNCTION(BlueprintCallable)
 	void Disarm();
+
 	UFUNCTION(BlueprintCallable)
 	void Arm();
 
@@ -63,7 +59,6 @@ protected:
 
 
 private:
-
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArm;

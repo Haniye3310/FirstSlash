@@ -24,7 +24,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Attack() override;
-	virtual void PlayAttackMontage() override;
 	virtual bool CanAttack() override;
 	virtual void AttackEnd() override;
 

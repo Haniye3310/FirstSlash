@@ -18,8 +18,6 @@ public:
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Destroyed() override;
-	void CheckPatrolTarget();
-	void CheckCombatTartget();
 
 protected:
 	virtual void BeginPlay() override;
@@ -27,11 +25,10 @@ protected:
 	virtual void Attack() override;
 	virtual bool CanAttack() override;
 	virtual void HandleDamage(float DamageAmount);
+	virtual void AttackEnd() override;
 	virtual int32 PlayDeathMontage() override;
 
-	bool InTargetRange(AActor* Target, double Radius);
-	void MoveToTarget(AActor* Target);
-	AActor* ChoosePatrolTarget();
+
 
 	UPROPERTY(BlueprintReadOnly)
 	TEnumAsByte<EDeathPos> DeathPos;
@@ -39,18 +36,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
-	float DeathLifeSpan =8.f;
-
-	UFUNCTION()
-	void PawnSeen(APawn* SeenPawn);
 
 private:
 
 	FTimerHandle PatrolTimer;
 	FTimerHandle AttackTimer;
 
-
+	void CheckPatrolTarget();
+	void CheckCombatTartget();
 	void PatrolTimerFinished();
 	void HideHealthBar();
 	void ShowHealthBar();
@@ -67,6 +60,14 @@ private:
 	void StartAttackTimer();
 	void ClearPatrolTimer();
 	void ClearAttackTimer();
+	void SpawnDefaultWeapon();
+	void InitializeEnemy();
+	void MoveToTarget(AActor* Target);
+	bool InTargetRange(AActor* Target, double Radius);
+	AActor* ChoosePatrolTarget();
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float DeathLifeSpan = 8.f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float AttackMin = 0.5f;
@@ -93,7 +94,7 @@ private:
 	double AttackRadius = 150.f;
 
 	UPROPERTY(EditAnywhere)
-	double CombatRadius = 500.f;
+	double CombatRadius = 1000.f;
 
 	UPROPERTY()
 	class AAIController* EnemyController;
@@ -108,12 +109,14 @@ private:
 	double PatrolRadius = 200.f;
 
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
-	float WaitMin = 5.f;
+	float PatrolWaitMin = 5.f;
 
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
-	float WaitMax = 10.f;
+	float PatrolWaitMax = 10.f;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AWeapon> WeaponClass;
 	
+	UFUNCTION()
+	void PawnSeen(APawn* SeenPawn);
 };

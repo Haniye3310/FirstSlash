@@ -17,9 +17,6 @@ public:
 	ABaseCharacter();
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void Attack();
@@ -31,23 +28,41 @@ protected:
 
 	bool IsAlive();
 	void DisableCapsule();
-	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
 	void PlayHitSound(const FVector& ImpactPoint);
 	void SpawnHitParticles(const FVector& ImpactPoint);
 	void DirectionalHitReact(const FVector& ImpactPoint);
 	void PlayHitReactMontage(const FName& SectionName);
-	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
 
 	UPROPERTY(BlueprintReadOnly)
 	class AWeapon* EquippedWeapon;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+	UPROPERTY(VisibleAnywhere)
+	class UAttributeComponent* Attributes;
+
+	UFUNCTION(BlueprintCallable)
+	virtual void AttackEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
+
+private:
+
+	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
+	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	USoundBase* HitSound;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	UParticleSystem* HitParticles;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	UAnimMontage* AttackMontage;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	UAnimMontage* HitReactMontage;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	UAnimMontage* DeathMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
@@ -55,19 +70,4 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TArray<FName> DeathMontageSections;
-
-	UPROPERTY(VisibleAnywhere)
-	class UAttributeComponent* Attributes;
-
-
-	UFUNCTION(BlueprintCallable)
-	virtual void AttackEnd();
-
-private:
-
-	UPROPERTY(EditAnywhere)
-	USoundBase* HitSound;
-
-	UPROPERTY(EditAnywhere)
-	UParticleSystem* HitParticles;
 };

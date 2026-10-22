@@ -17,8 +17,8 @@ class FIRSTSLASH_API ASlashCharacter : public ABaseCharacter
 
 public:
 	ASlashCharacter();
-	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 
 protected:
@@ -27,12 +27,15 @@ protected:
 	virtual bool CanAttack() override;
 	virtual void AttackEnd() override;
 
+	void EquipWeapon(AWeapon* Weapon);
 	void MoveForward(float Value);
 	void Turn(float Value);
 	void LookUp(float Value);
 	void MoveRight(float Value);
 	void EKeyPressed();
 	void PlayEquipMontage(const FName& SectionName);
+	void Disarm();
+	void Arm();
 	bool CanDisarm();
 	bool CanArm();
 
@@ -46,10 +49,10 @@ protected:
 	UAnimMontage* EquipMontage;
 
 	UFUNCTION(BlueprintCallable)
-	void Disarm();
+	void AttachWeaponToBack();
 
 	UFUNCTION(BlueprintCallable)
-	void Arm();
+	void AttachWeaponToHand();
 
 	UFUNCTION(BlueprintCallable)
 	void FinishEquipping();

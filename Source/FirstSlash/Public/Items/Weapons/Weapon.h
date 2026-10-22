@@ -17,16 +17,20 @@ class FIRSTSLASH_API AWeapon : public AItem
 public:
 	AWeapon();
 	void Equip(USceneComponent* InParent, FName InSocketName,AActor* NewOwner, APawn* NewInstigator);
+	void DeactivateEmbers();
+	void DisableSphereCollision();
+	void PlayEquipSound();
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
 	void AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName);
 	TArray<AActor*> IgnoreActors;
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+
 	UFUNCTION()
 	void OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	bool ActorIsSameType(AActor* OtherActor);
+	void ExecuteGetHit(FHitResult& BoxHit);
 	UFUNCTION(BlueprintImplementableEvent)
 	void CreateFields(const FVector& FieldLocation);  
 private:
@@ -44,4 +48,14 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properies")
 	float Damage = 20.f;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properies")
+	FVector BoxTraceExtent = FVector(5.f);
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properies")
+	bool bShowBoxDebug = false;
+
+
+	void BoxTrace(FHitResult& BoxHit);
+
 };

@@ -7,10 +7,12 @@
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
-#include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
+//#include "Components/BoxComponent.h"
+
 ASlashCharacter::ASlashCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -18,6 +20,11 @@ ASlashCharacter::ASlashCharacter()
 
 	/*GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 400.f);*/
+	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility,ECollisionResponse::ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic,ECollisionResponse::ECR_Overlap);
+	GetMesh()->SetGenerateOverlapEvents(true);
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(GetRootComponent());
@@ -30,13 +37,7 @@ ASlashCharacter::ASlashCharacter()
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	Tags.Add(FName("Eve"));
-}
-
-void ASlashCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+	Tags.Add(FName("EngagableTarget"));
 }
 
 void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -52,7 +53,21 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 }
 
-void ASlashCharacter::MoveForward(float Value) 
+void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+{
+	PlayHitSound(ImpactPoint);
+	SpawnHitParticles(ImpactPoint);
+}
+
+void ASlashCharacter::EquipWeapon(AWeapon* Weapon)
+{
+	Weapon->Equip(GetMesh(), FName("hand_rSocket"), this, this);
+	CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+	OverlappingItem = nullptr;
+	EquippedWeapon = Weapon;
+}
+
+void ASlashCharacter::MoveForward(float Value)
 {
 	if (ActionState != EActionState::EAS_Unoccupied)return;
 	if ((Controller != nullptr) && (Value != 0.f)) 
@@ -88,25 +103,17 @@ void ASlashCharacter::EKeyPressed()
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
 	if (OverlappingWeapon) 
 	{
-		OverlappingWeapon->Equip(GetMesh(), FName("hand_rSocket"),this,this);
-		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
-		OverlappingItem = nullptr;
-		EquippedWeapon = OverlappingWeapon;
-		
+		EquipWeapon(OverlappingWeapon);
 	}
 	else
 	{
 		if(CanDisarm())
 		{
-			PlayEquipMontage(FName("UnEquip"));
-			CharacterState = ECharacterState::ECS_Unequipped;
-			ActionState = EActionState::EAS_EquippingWeapon;
+			Disarm();
 		}
 		else if(CanArm())
 		{
-			PlayEquipMontage(FName("Equip"));
-			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
-			ActionState = EActionState::EAS_EquippingWeapon;
+			Arm();
 		}
 	}
 }
@@ -136,14 +143,14 @@ bool ASlashCharacter::CanArm()
 		CharacterState == ECharacterState::ECS_Unequipped &&
 		EquippedWeapon;
 }
-void ASlashCharacter::Disarm()
+void ASlashCharacter::AttachWeaponToBack()
 {
 	if (EquippedWeapon) {
 		EquippedWeapon->AttachMeshToSocket(GetMesh(), "SpineSocket");
 
 	}
 }
-void ASlashCharacter::Arm()
+void ASlashCharacter::AttachWeaponToHand()
 {
 	if (EquippedWeapon) {
 		EquippedWeapon->AttachMeshToSocket(GetMesh(), "hand_rSocket");
@@ -164,6 +171,18 @@ void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 		AnimInstance->Montage_Play(EquipMontage);
 		AnimInstance->Montage_JumpToSection(SectionName, EquipMontage);
 	}
+}
+void ASlashCharacter::Disarm()
+{
+	PlayEquipMontage(FName("UnEquip"));
+	CharacterState = ECharacterState::ECS_Unequipped;
+	ActionState = EActionState::EAS_EquippingWeapon;
+}
+void ASlashCharacter::Arm()
+{
+	PlayEquipMontage(FName("Equip"));
+	CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+	ActionState = EActionState::EAS_EquippingWeapon;
 }
 void ASlashCharacter::AttackEnd()
 {
